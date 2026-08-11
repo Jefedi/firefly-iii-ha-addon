@@ -15,6 +15,7 @@ ports:
   8080/tcp: 8080
 ports_description:
   8080/tcp: Interface web Firefly III
+image: ghcr.io/jefedi/{arch}-firefly-iii-ha-addon
 map:
   - addon_config:rw
 options:
