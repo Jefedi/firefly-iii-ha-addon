@@ -75,6 +75,6 @@ if [ -f /etc/nginx/nginx.conf.template ] && [ ! -f /etc/nginx/nginx.conf ]; then
     envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 fi
 
-# Démarrer php-fpm + nginx
+# Démarrer php-fpm + nginx (le template a déjà "daemon off;")
 php-fpm --allow-to-run-as-root -D
-exec nginx -g 'daemon off;'
+exec nginx
