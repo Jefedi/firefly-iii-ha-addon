@@ -3,10 +3,8 @@ set -e
 
 # ==============================================================================
 # Firefly III HA Add-on — Script d'init + démarrage
+# Surcharge l'entrypoint de fireflyiii/core pour ajouter l'init HA
 # ==============================================================================
-
-export FIREFLY_III_ENV=production
-export DB_CONNECTION=sqlite
 
 DATA_DIR="/data"
 DB_FILE="${DATA_DIR}/database.sqlite"
@@ -23,8 +21,18 @@ if [ ! -f "${APP_KEY_FILE}" ]; then
     echo "base64:${APP_KEY}" > "${APP_KEY_FILE}"
 fi
 APP_KEY=$(cat "${APP_KEY_FILE}")
+export APP_KEY
 
-# 2. Écrire le .env
+# 2. Variables d'environnement pour Firefly III
+export FIREFLY_III_ENV=production
+export DB_CONNECTION=sqlite
+export DB_DATABASE="${DB_FILE}"
+export APP_URL=http://localhost
+export SHOW_ERROR_MESSAGES=false
+export APP_DEBUG=false
+export LOG_CHANNEL=stack
+
+# 3. Écrire le .env (au cas où certains scripts le liraient)
 cat > "${FIREFLY_DIR}/.env" << EOF
 FIREFLY_III_ENV=production
 DB_CONNECTION=sqlite
@@ -36,33 +44,34 @@ LOG_CHANNEL=stack
 APP_DEBUG=false
 EOF
 
-# 3. Lier uploads vers /data
-if [ -d "${FIREFLY_DIR}/storage/upload" ] && [ ! -L "${FIREFLY_DIR}/storage/upload" ]; then
-    cp -a "${FIREFLY_DIR}/storage/upload/." "${UPLOAD_DIR}/" 2>/dev/null || true
-    rm -rf "${FIREFLY_DIR}/storage/upload"
-fi
-ln -sf "${UPLOAD_DIR}" "${FIREFLY_DIR}/storage/upload"
+# 4. Préparer le dossier uploads (sans rm -rf qui peut échouer)
+mkdir -p "${FIREFLY_DIR}/storage/upload"
+chown -R www-data:www-data "${UPLOAD_DIR}" 2>/dev/null || true
 
-# 4. Lier la DB SQLite vers /data
-mkdir -p "${FIREFLY_DIR}/storage/db"
-ln -sf "${DB_FILE}" "${FIREFLY_DIR}/storage/db/database.sqlite"
-
-# 5. Premier démarrage = migrations
-if [ ! -f "${DB_FILE}" ] || [ ! -s "${DB_FILE}" ]; then
+# 5. Créer la DB SQLite si elle n'existe pas
+if [ ! -f "${DB_FILE}" ]; then
     echo "[Firefly III] Premier démarrage — initialisation de la base SQLite..."
+    mkdir -p "$(dirname "${DB_FILE}")"
     touch "${DB_FILE}"
-    cd "${FIREFLY_DIR}"
-    php artisan migrate --force
-    php artisan firefly-iii:upgrade-database
-    php artisan passport:install
-    echo "[Firefly III] Base de données initialisée ✓"
 fi
 
 # 6. Permissions
 chown -R www-data:www-data "${DATA_DIR}" 2>/dev/null || true
 chown -R www-data:www-data "${FIREFLY_DIR}/storage" 2>/dev/null || true
+chmod -R 775 "${FIREFLY_DIR}/storage" 2>/dev/null || true
+
+# 7. Premier démarrage = migrations
+if [ ! -f "${DATA_DIR}/.initialized" ]; then
+    echo "[Firefly III] Exécution des migrations..."
+    cd "${FIREFLY_DIR}"
+    php artisan migrate --force 2>&1 || true
+    php artisan firefly-iii:upgrade-database 2>&1 || true
+    php artisan passport:install 2>&1 || true
+    touch "${DATA_DIR}/.initialized"
+    echo "[Firefly III] Base de données initialisée ✓"
+fi
 
 echo "[Firefly III] Démarrage du serveur web..."
 
-# Lancer php-fpm + nginx (entrypoint de l'image officielle)
-exec /usr/local/bin/entrypoint.sh "$@"
+# Lancer l'entrypoint original de l'image fireflyiii/core
+exec docker-php-serversideup-entrypoint "$@"

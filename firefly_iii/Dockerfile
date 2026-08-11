@@ -7,6 +7,9 @@ USER root
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
+# Surcharger l'entrypoint de l'image de base par le nôtre
+ENTRYPOINT ["/run.sh"]
+
 # Le port interne de Firefly III
 EXPOSE 8080
 
@@ -23,5 +26,3 @@ LABEL \
     org.opencontainers.image.description="Firefly III officiel, SQLite, sans dépendance externe" \
     org.opencontainers.image.source="https://github.com/Jefedi/firefly-iii-ha-addon" \
     org.opencontainers.image.licenses="MIT"
-
-CMD ["/run.sh"]
