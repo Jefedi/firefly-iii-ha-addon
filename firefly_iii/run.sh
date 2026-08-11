@@ -62,8 +62,8 @@ chown -R www-data:www-data "${FIREFLY_DIR}/storage" 2>/dev/null || true
 chmod -R 775 "${FIREFLY_DIR}/storage" 2>/dev/null || true
 
 echo "[Firefly III] Démarrage du serveur web..."
+echo "[Firefly III] Démarrage du serveur web..."
 
-# Démarrer php-fpm + nginx en foreground
-cd "${FIREFLY_DIR}"
-php-fpm --allow-to-run-as-root -D
-exec nginx -g 'daemon off;'
+# Lancer l'entrypoint original qui process le nginx.conf.template
+# puis démarre php-fpm + nginx
+exec docker-php-serversideup-entrypoint "nginx" "-g" "daemon off;"
