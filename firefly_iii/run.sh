@@ -17,9 +17,8 @@ mkdir -p "${DATA_DIR}" "${UPLOAD_DIR}"
 # 1. APP_KEY persistant
 if [ ! -f "${APP_KEY_FILE}" ]; then
     echo "[Firefly III] Génération d'un APP_KEY aléatoire (premier démarrage)..."
-    # Utiliser php artisan pour générer une clé valide
-    cd "${FIREFLY_DIR}"
-    APP_KEY=$(php artisan key:generate --show 2>/dev/null || echo "base64:$(cat /dev/urandom | base64 | head -c 32)")
+    # Laravel需要一个32字节的密钥，base64编码后是44个字符
+    APP_KEY="base64:$(cat /dev/urandom | head -c 32 | base64 | tr -d '\n' | head -c 44)"
     echo "${APP_KEY}" > "${APP_KEY_FILE}"
 fi
 APP_KEY=$(cat "${APP_KEY_FILE}")
