@@ -67,7 +67,7 @@ if [ -f /etc/nginx/nginx.conf.template ] && [ ! -f /etc/nginx/nginx.conf ]; then
     export NGINX_ACCESS_LOG="${NGINX_ACCESS_LOG:-/dev/stdout}"
     export NGINX_CLIENT_MAX_BODY_SIZE="${NGINX_CLIENT_MAX_BODY_SIZE:-50m}"
     export HEALTHCHECK_PATH="${HEALTHCHECK_PATH:-/health}"
-    envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+    envsubst '${NGINX_ERROR_LOG} ${LOG_OUTPUT_LEVEL} ${NGINX_SERVER_TOKENS} ${NGINX_ACCESS_LOG} ${NGINX_CLIENT_MAX_BODY_SIZE} ${HEALTHCHECK_PATH}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 fi
 
 echo "[Firefly III] Démarrage du serveur web..."
