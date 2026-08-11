@@ -1,6 +1,8 @@
 # https://developers.home-assistant.io/docs/apps/configuration#app-dockerfile
 FROM fireflyiii/core:latest
 
+USER root
+
 # Copier le script d'init + run
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
