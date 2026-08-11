@@ -61,18 +61,8 @@ chown -R www-data:www-data "${DATA_DIR}" 2>/dev/null || true
 chown -R www-data:www-data "${FIREFLY_DIR}/storage" 2>/dev/null || true
 chmod -R 775 "${FIREFLY_DIR}/storage" 2>/dev/null || true
 
-# 7. Premier démarrage = migrations
-if [ ! -f "${DATA_DIR}/.initialized" ]; then
-    echo "[Firefly III] Exécution des migrations..."
-    cd "${FIREFLY_DIR}"
-    php artisan migrate --force 2>&1 || true
-    php artisan firefly-iii:upgrade-database 2>&1 || true
-    php artisan passport:install 2>&1 || true
-    touch "${DATA_DIR}/.initialized"
-    echo "[Firefly III] Base de données initialisée ✓"
-fi
-
 echo "[Firefly III] Démarrage du serveur web..."
 
 # Lancer l'entrypoint original de l'image fireflyiii/core
+# (il gère les migrations et le démarrage de php-fpm + nginx)
 exec docker-php-serversideup-entrypoint "$@"
