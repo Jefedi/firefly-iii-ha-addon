@@ -1,6 +1,6 @@
 # https://developers.home-assistant.io/docs/apps/configuration
 name: Firefly III
-version: "1.0.0"
+version: "latest"
 slug: firefly_iii
 description: Gestionnaire de budget personnel self-hosté (Firefly III officiel, SQLite, sans dépendance externe)
 url: https://github.com/Jefedi/firefly-iii-ha-addon
