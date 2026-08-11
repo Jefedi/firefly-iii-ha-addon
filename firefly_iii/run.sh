@@ -65,5 +65,5 @@ echo "[Firefly III] Démarrage du serveur web..."
 
 # Démarrer php-fpm + nginx en foreground
 cd "${FIREFLY_DIR}"
-php-fpm -D
+php-fpm --allow-to-run-as-root -D
 exec nginx -g 'daemon off;'
