@@ -62,8 +62,19 @@ chown -R www-data:www-data "${FIREFLY_DIR}/storage" 2>/dev/null || true
 chmod -R 775 "${FIREFLY_DIR}/storage" 2>/dev/null || true
 
 echo "[Firefly III] Démarrage du serveur web..."
-echo "[Firefly III] Démarrage du serveur web..."
 
-# Lancer l'entrypoint original qui process le nginx.conf.template
-# puis démarre php-fpm + nginx
-exec docker-php-serversideup-entrypoint "nginx" "-g" "daemon off;"
+# Générer nginx.conf depuis le template (l'entrypoint original le fait normalement)
+if [ -f /etc/nginx/nginx.conf.template ] && [ ! -f /etc/nginx/nginx.conf ]; then
+    # Définir les variables par défaut si absentes
+    export NGINX_ERROR_LOG="${NGINX_ERROR_LOG:-/dev/stderr}"
+    export LOG_OUTPUT_LEVEL="${LOG_OUTPUT_LEVEL:-warn}"
+    export NGINX_SERVER_TOKENS="${NGINX_SERVER_TOKENS:-off}"
+    export NGINX_ACCESS_LOG="${NGINX_ACCESS_LOG:-/dev/stdout}"
+    export NGINX_CLIENT_MAX_BODY_SIZE="${NGINX_CLIENT_MAX_BODY_SIZE:-50m}"
+    export HEALTHCHECK_PATH="${HEALTHCHECK_PATH:-/health}"
+    envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+fi
+
+# Démarrer php-fpm + nginx
+php-fpm --allow-to-run-as-root -D
+exec nginx -g 'daemon off;'
