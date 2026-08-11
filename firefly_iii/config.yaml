@@ -1,0 +1,27 @@
+# https://developers.home-assistant.io/docs/apps/configuration
+name: Firefly III
+version: "1.0.0"
+slug: firefly_iii
+description: Gestionnaire de budget personnel self-hosté (Firefly III officiel, SQLite, sans dépendance externe)
+url: https://github.com/Jefedi/firefly-iii-ha-addon
+arch:
+  - amd64
+  - aarch64
+startup: services
+boot: auto
+init: false
+webui: http://[HOST]:[PORT:8080]
+ports:
+  8080/tcp: 8080
+ports_description:
+  8080/tcp: Interface web Firefly III
+map:
+  - addon_config:rw
+options:
+  ssl: false
+  certfile: fullchain.pem
+  keyfile: privkey.pem
+schema:
+  ssl: bool
+  certfile: str
+  keyfile: str
