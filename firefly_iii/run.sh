@@ -64,5 +64,5 @@ chmod -R 775 "${FIREFLY_DIR}/storage" 2>/dev/null || true
 echo "[Firefly III] Démarrage du serveur web..."
 
 # Lancer l'entrypoint original de l'image fireflyiii/core
-# (il gère les migrations et le démarrage de php-fpm + nginx)
-exec docker-php-serversideup-entrypoint "$@"
+# "web" = lance php-fpm + nginx en mode foreground (daemon)
+exec docker-php-serversideup-entrypoint web
