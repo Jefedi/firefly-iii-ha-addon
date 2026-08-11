@@ -7,13 +7,14 @@ url: https://github.com/Jefedi/firefly-iii-ha-addon
 arch:
   - amd64
   - aarch64
-startup: services
+startup: application
 boot: auto
 webui: http://[HOST]:[PORT:8080]
 ports:
   8080/tcp: 8080
 ports_description:
   8080/tcp: Interface web Firefly III
+image: ghcr.io/jefedi/{arch}-firefly-iii-ha-addon
 options:
   ssl: false
   certfile: fullchain.pem
