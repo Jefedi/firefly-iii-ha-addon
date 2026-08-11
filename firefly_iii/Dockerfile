@@ -1,11 +1,6 @@
 # https://developers.home-assistant.io/docs/apps/configuration#app-dockerfile
 FROM fireflyiii/core:latest
 
-# Installer bashio pour lire la config HA (/data/options.json)
-RUN curl -sSLf -o /usr/bin/bashio \
-    "https://github.com/hassio-addons/bashio/releases/latest/download/bashio" \
-    && chmod +x /usr/bin/bashio
-
 # Copier le script d'init + run
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
